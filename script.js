@@ -1,6 +1,7 @@
 
 const menuButton = document.getElementById("menuButton");
 const dropdownMenu = document.getElementById("dropdownMenu");
+const exitButton = document.getElementById("exitButton");
 
 const settingsOption = document.getElementById("settingsOption");
 const chaptersOption = document.getElementById("chaptersOption");
@@ -175,6 +176,7 @@ function startGame() {
     currentScreen = "game";
 
     dropdownMenu.classList.remove("show");
+    exitButton.classList.remove("show");
 
     startScreen.classList.add("fade-out");
     topControls.classList.add("fade-out");
@@ -198,6 +200,9 @@ function startGame() {
 
                     currentDialogue = 0;
                     dialogueReady = true;
+
+                    // SHOW EXIT BUTTON WHEN DIALOGUE STARTS
+                    exitButton.classList.add("show");
 
                     typeDialogue();
 
@@ -265,4 +270,41 @@ gameScreen.addEventListener("click", function(event) {
         currentDialogue++;
         typeDialogue();
     }
+});
+
+// EXIT BUTTON
+exitButton.addEventListener("click", function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (currentScreen !== "game") return;
+
+    // STOP ANY RUNNING TYPEWRITER EFFECT
+    clearInterval(typingTimer);
+
+    // RESET GAME VARIABLES
+    currentScreen = "title";
+    currentDialogue = 0;
+    isTyping = false;
+    hasStarted = false;
+    dialogueReady = false;
+
+    // HIDE EXIT BUTTON
+    exitButton.classList.remove("show");
+
+    // RESET GAME SCREEN
+    gameScreen.classList.remove("active");
+    dialogueBox.classList.remove("dialogue-visible");
+    chapterIntro.classList.remove("show");
+
+    // CLEAR OLD DIALOGUE
+    characterName.textContent = "YOU";
+    dialogueText.textContent = "";
+
+    // RETURN TO TITLE SCREEN
+    startScreen.classList.remove("fade-out");
+    topControls.classList.remove("fade-out");
+
+    // CLOSE DROPDOWN MENU
+    dropdownMenu.classList.remove("show");
 });

@@ -60,6 +60,19 @@ body {
     transition: none;
 }
 
+/* EXIT BUTTON */
+.exit-control {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 20;
+    display: none;
+}
+
+.exit-control.show {
+    display: flex;
+}
+
 /* DROPDOWN MENU */
 .dropdown-menu {
     display: none;
@@ -344,7 +357,7 @@ body {
 
 <body>
 
-<!-- TOP BUTTONS -->
+<!-- MENU BUTTON -->
 <div class="top-controls" id="topControls">
     <button class="control-box" id="menuButton">MENU</button>
 
@@ -354,6 +367,11 @@ body {
         <button class="dropdown-button" id="aboutOption">ABOUT</button>
     </div>
 </div>
+
+<!-- EXIT BUTTON -->
+<button class="control-box exit-control" id="exitButton">
+    EXIT
+</button>
 
 <!-- MAIN TITLE -->
 <div class="center-content" id="startScreen">
