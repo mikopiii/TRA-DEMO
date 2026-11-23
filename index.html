@@ -6,7 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Runaway Bride</title>
 
-<!-- SPECIAL ELITE FONT -->
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
 
 <style>
@@ -323,6 +322,108 @@ body {
     opacity: 1;
 }
 
+/* NEW GAME / CONTINUE OPTIONS */
+.start-options {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 25px;
+    width: 230px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.start-options.show {
+    display: flex;
+}
+
+.start-option-button {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #247bff;
+    background: #030916;
+    color: #a9d4ff;
+    font-family: 'Special Elite', cursive;
+    font-size: 13px;
+    letter-spacing: 2px;
+    cursor: pointer;
+}
+
+/* SAVES SCREEN */
+#savesScreen {
+    overflow-y: auto;
+    justify-content: flex-start;
+    padding-top: 70px;
+}
+
+.save-slots {
+    width: 100%;
+    max-width: 650px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.save-slot {
+    border: 1px solid #ff0000;
+    background: #000000;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    text-align: left;
+}
+
+.save-slot-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.save-slot-title {
+    color: #ff0000;
+    font-size: 16px;
+    letter-spacing: 2px;
+    margin-bottom: 9px;
+}
+
+.save-slot-details {
+    color: #999;
+    font-size: 11px;
+    line-height: 1.8;
+    letter-spacing: 1px;
+}
+
+.save-slot-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.save-action {
+    min-width: 95px;
+    padding: 9px 12px;
+    border: 1px solid #ff0000;
+    background: #000000;
+    color: #ff0000;
+    font-family: 'Special Elite', cursive;
+    font-size: 11px;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+.save-empty {
+    color: #ff0000;
+}
+
+.save-mode-description {
+    color: #a9d4ff;
+    font-size: 12px;
+    letter-spacing: 2px;
+    margin-top: -35px;
+    margin-bottom: 30px;
+}
+
 /* MOBILE */
 @media (max-width: 750px) {
     .chapter-list {
@@ -351,6 +452,14 @@ body {
     .dialogue-text {
         font-size: 14px;
     }
+
+    .save-slot {
+        align-items: flex-start;
+    }
+
+    .save-slot-actions {
+        flex-shrink: 0;
+    }
 }
 </style>
 </head>
@@ -364,6 +473,7 @@ body {
     <div class="dropdown-menu" id="dropdownMenu">
         <button class="dropdown-button" id="settingsOption">Settings</button>
         <button class="dropdown-button" id="chaptersOption">Chapters</button>
+        <button class="dropdown-button" id="savesOption">Saves</button>
         <button class="dropdown-button" id="aboutOption">About</button>
     </div>
 </div>
@@ -377,6 +487,11 @@ body {
 <div class="center-content" id="startScreen">
     <h1 class="main-title">The Runaway Bride</h1>
     <p class="start-text">Tap here to start</p>
+
+    <div class="start-options" id="startOptions">
+        <button class="start-option-button" id="newGameButton">New Game</button>
+        <button class="start-option-button" id="continueButton">Continue</button>
+    </div>
 </div>
 
 <!-- CHAPTER SELECTION -->
@@ -408,6 +523,21 @@ body {
     <button class="back-button" id="returnChapters">
         Back to chapters?
     </button>
+
+</section>
+
+<!-- SAVES SCREEN -->
+<section class="screen" id="savesScreen">
+
+    <h2 class="section-title">Saves</h2>
+
+    <p class="save-mode-description" id="saveModeDescription">
+        Select a save slot to continue.
+    </p>
+
+    <div class="save-slots" id="saveSlots"></div>
+
+    <button class="back-button" id="savesBack">Back</button>
 
 </section>
 

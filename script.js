@@ -5,6 +5,7 @@ const exitButton = document.getElementById("exitButton");
 
 const settingsOption = document.getElementById("settingsOption");
 const chaptersOption = document.getElementById("chaptersOption");
+const savesOption = document.getElementById("savesOption");
 const aboutOption = document.getElementById("aboutOption");
 
 const startScreen = document.getElementById("startScreen");
@@ -13,6 +14,15 @@ const topControls = document.getElementById("topControls");
 const chapterScreen = document.getElementById("chapterScreen");
 const individualChapter = document.getElementById("individualChapter");
 const gameScreen = document.getElementById("gameScreen");
+const savesScreen = document.getElementById("savesScreen");
+
+const startOptions = document.getElementById("startOptions");
+const newGameButton = document.getElementById("newGameButton");
+const continueButton = document.getElementById("continueButton");
+
+const saveSlotsContainer = document.getElementById("saveSlots");
+const saveModeDescription = document.getElementById("saveModeDescription");
+const savesBack = document.getElementById("savesBack");
 
 const chapterIntro = document.getElementById("chapterIntro");
 const dialogueBox = document.getElementById("dialogueBox");
@@ -28,6 +38,117 @@ const characterName = document.getElementById("characterName");
 const dialogueText = document.getElementById("dialogueText");
 
 const transitionTime = 600;
+
+// SAVE SYSTEM
+const SAVE_KEY = "runawayBrideSaveSlots";
+
+let saveSlots = loadAllSaves();
+let activeSaveSlot = null;
+let savesMode = "load";
+let pendingStart = false;
+
+function loadAllSaves() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
+
+        if (Array.isArray(saved) && saved.length === 3) {
+            return saved;
+        }
+    } catch (error) {
+        console.error("Unable to read saves:", error);
+    }
+
+    return [null, null, null];
+}
+
+function writeAllSaves() {
+    try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(saveSlots));
+    } catch (error) {
+        console.error("Unable to store saves:", error);
+        alert("Unable to save your game. Your browser storage may be full or unavailable.");
+    }
+}
+
+function getStoryPathName() {
+    if (activeDialogues === storyBranches.getOutOfBed) {
+        return "getOutOfBed";
+    }
+
+    if (activeDialogues === storyBranches.stayInBed) {
+        return "stayInBed";
+    }
+
+    if (activeDialogues === storyBranches.yes) {
+        return "yes";
+    }
+
+    if (activeDialogues === storyBranches.no) {
+        return "no";
+    }
+
+    return "main";
+}
+
+function createSaveData() {
+    return {
+        chapter: 1,
+        chapterTitle: "Roam to feel",
+
+        storyPath: getStoryPathName(),
+
+        currentDialogue: currentDialogue,
+
+        selectedChoice: selectedChoice,
+
+        finalChoicesShown: finalChoicesShown,
+
+        choices: {
+            initialChoice:
+                ["getOutOfBed", "stayInBed"].includes(selectedChoice)
+                    ? selectedChoice
+                    : null,
+
+            finalChoice:
+                ["yes", "no"].includes(selectedChoice)
+                    ? selectedChoice
+                    : null
+        },
+
+        dialogueReady: dialogueReady,
+
+        timestamp: Date.now()
+    };
+}
+
+function autoSave() {
+    if (activeSaveSlot === null) return;
+    if (currentScreen !== "game") return;
+
+    saveSlots[activeSaveSlot] = createSaveData();
+
+    writeAllSaves();
+
+    updateContinueButton();
+}
+
+function getSaveData(slotIndex) {
+    return saveSlots[slotIndex];
+}
+
+function getLatestSaveSlot() {
+    let latestSlot = null;
+    let latestTime = 0;
+
+    saveSlots.forEach(function(save, index) {
+        if (save && save.timestamp > latestTime) {
+            latestTime = save.timestamp;
+            latestSlot = index;
+        }
+    });
+
+    return latestSlot;
+}
 
 // CHAPTER SUBTITLE
 const chapterSubtitle = document.createElement("div");
@@ -49,6 +170,7 @@ let typingTimer = null;
 let hasStarted = false;
 let dialogueReady = false;
 let selectedChoice = null;
+let finalChoicesShown = false;
 
 // DIALOGUE
 const dialogues = [
@@ -99,13 +221,76 @@ const dialogues = [
 ];
 
 // BRANCHING STORY DIALOGUES
-
 const storyBranches = {
 
     getOutOfBed: [
         {
+            name: "",
+            text: "You walk towards your vanity."
+        },
+        {
             name: "YOU",
             text: "Greetings again, you look paler than ever."
+        },
+        {
+            name: "",
+            text: "You say to yourself as you see your reflection on the mirror."
+        },
+        {
+            name: "",
+            text: "*Knocks*"
+        },
+        {
+            name: "Lady in waiting",
+            text: "Good afternoon, my lady. Your washstand—"
+        },
+        {
+            name: "",
+            text: "She places it on your vanity’s side table."
+        },
+        {
+            name: "",
+            text: "You wash your face with a damp cloth before sitting down on a chair."
+        },
+        {
+            name: "YOU",
+            text: "Would you mind washing my feet and arms too."
+        },
+        {
+            name: "Lady in waiting",
+            text: "Of course, my Lady"
+        },
+        {
+            name: "",
+            text: "Your lady in waiting lowers herself to her knees to clean your ankles — She proceeds to wipe the grime off the skin of your arms with gentle care, seeing your preferences to be this way — Your lady in waiting seems to have something to say to fill the silence in the room."
+        },
+        {
+            name: "Lady in waiting",
+            text: "My lady, perhaps I could accompany you on a way to your personal garden?"
+        },
+        {
+            name: "",
+            text: "You checked the seeping sunlight from your wall window."
+        },
+        {
+            name: "YOU",
+            text: "Hm, yes, maybe you should."
+        },
+        {
+            name: "YOU",
+            text: "Bring me my umbrella after this, I want the gardeners out of my garden as well."
+        },
+        {
+            name: "Lady in waiting",
+            text: "As you wish, my lady"
+        },
+        {
+            name: "",
+            text: "Your lady in waiting finishes her assistance then leaves you to get your parasol — You look at the seeping sunlight again — It irks you."
+        },
+        {
+            name: "YOU",
+            text: "Should I still go?"
         }
     ],
 
@@ -121,6 +306,32 @@ const storyBranches = {
         {
             name: "YOU",
             text: "Perhaps, I should."
+        }
+    ],
+
+    yes: [
+        {
+            name: "YOU",
+            text: "I should, a little sunlight won’t hurt. I have my parasol anyways"
+        },
+        {
+            name: "",
+            text: "Your Lady in Waiting returns with your parasol — You grab your shawl for some coverage — You can now leave your room with ease."
+        }
+    ],
+
+    no: [
+        {
+            name: "YOU",
+            text: "Sigh…"
+        },
+        {
+            name: "",
+            text: "You stood up to close the curtains and painstakingly crawl back to your bed."
+        },
+        {
+            name: "",
+            text: "Your Lady in Waiting returns — although you drove her off — You won’t be able to leave your room."
         }
     ]
 
@@ -142,10 +353,9 @@ choiceContainer.style.transform = "translateX(-50%)";
 choiceContainer.style.width = "min(700px, 80%)";
 choiceContainer.style.zIndex = "10";
 
-// CHOICE BOX IS SEPARATE FROM THE DIALOGUE BOX
 gameScreen.appendChild(choiceContainer);
 
-function createChoice(text, value) {
+function createChoice(text, value, startsBranch = true) {
     const button = document.createElement("button");
 
     button.textContent = text;
@@ -184,26 +394,32 @@ function createChoice(text, value) {
 
         console.log("Selected choice:", selectedChoice);
 
-        // START THE SELECTED STORY BRANCH
-        startStoryBranch(selectedChoice);
+        autoSave();
+
+        if (startsBranch) {
+            startStoryBranch(selectedChoice);
+        }
     });
 
     choiceContainer.appendChild(button);
 }
 
-createChoice("Get out of bed", "getOutOfBed");
-createChoice("Stay in bed", "stayInBed");
+// INITIAL CHOICES
+function createInitialChoices() {
+    choiceContainer.innerHTML = "";
+
+    createChoice("Get out of bed", "getOutOfBed");
+    createChoice("Stay in bed", "stayInBed");
+}
+
+createInitialChoices();
 
 function showChoices() {
-
-    // HIDE THE DIALOGUE BOX SO THE LAST LINE DOES NOT LINGER
     dialogueBox.style.display = "none";
 
-    // CLEAR THE PREVIOUS DIALOGUE
     characterName.textContent = "";
     dialogueText.textContent = "";
 
-    // SHOW THE SEPARATE CHOICE BOX
     choiceContainer.style.display = "flex";
 
     const continueText = dialogueBox.querySelector(".continue-text");
@@ -211,31 +427,57 @@ function showChoices() {
     if (continueText) {
         continueText.style.display = "none";
     }
+
+    autoSave();
+}
+
+// FINAL YES / NO CHOICES
+function showFinalChoices() {
+    finalChoicesShown = true;
+
+    dialogueBox.style.display = "none";
+
+    characterName.textContent = "";
+    dialogueText.textContent = "";
+
+    selectedChoice = null;
+
+    const continueText = dialogueBox.querySelector(".continue-text");
+
+    if (continueText) {
+        continueText.style.display = "none";
+    }
+
+    choiceContainer.innerHTML = "";
+
+    createChoice("Yes", "yes");
+    createChoice("No", "no");
+
+    choiceContainer.style.display = "flex";
+
+    autoSave();
 }
 
 // START STORY BRANCH
 function startStoryBranch(choice) {
-
-    // GET THE SELECTED STORY PATH
     activeDialogues = storyBranches[choice];
 
-    // START FROM THE FIRST DIALOGUE OF THAT PATH
     currentDialogue = 0;
 
-    // HIDE CHOICE BUTTONS
+    finalChoicesShown = false;
+
     choiceContainer.style.display = "none";
 
-    // SHOW THE DIALOGUE BOX AGAIN
     dialogueBox.style.display = "";
 
-    // SHOW CONTINUE TEXT AGAIN
     const continueText = dialogueBox.querySelector(".continue-text");
 
     if (continueText) {
         continueText.style.display = "block";
     }
 
-    // START THE SELECTED STORY
+    autoSave();
+
     typeDialogue();
 }
 
@@ -281,6 +523,18 @@ chaptersOption.addEventListener("click", function(event) {
     topControls.classList.add("fade-out");
 
     chapterScreen.classList.add("active");
+});
+
+// SAVES BUTTON
+savesOption.addEventListener("click", function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (currentScreen !== "title") return;
+
+    dropdownMenu.classList.remove("show");
+
+    openSavesScreen("load");
 });
 
 // ABOUT BUTTON
@@ -351,7 +605,45 @@ returnChapters.addEventListener("click", function(event) {
     switchScreen(individualChapter, chapterScreen);
 });
 
-// START GAME
+// START OPTIONS
+startScreen.addEventListener("click", function(event) {
+    event.stopPropagation();
+
+    if (currentScreen !== "title") return;
+
+    if (startOptions.classList.contains("show")) return;
+
+    startOptions.classList.add("show");
+});
+
+// OPEN SAVE SLOT SELECTION FOR NEW GAME
+newGameButton.addEventListener("click", function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (currentScreen !== "title") return;
+
+    openSavesScreen("new");
+});
+
+// CONTINUE MOST RECENT SAVE
+continueButton.addEventListener("click", function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (currentScreen !== "title") return;
+
+    const latestSlot = getLatestSaveSlot();
+
+    if (latestSlot === null) {
+        alert("There are no saved games yet.");
+        return;
+    }
+
+    loadGame(latestSlot);
+});
+
+// START NEW GAME
 function startGame() {
     if (hasStarted || currentScreen !== "title") return;
 
@@ -359,6 +651,8 @@ function startGame() {
     currentScreen = "game";
 
     dropdownMenu.classList.remove("show");
+    startOptions.classList.remove("show");
+
     exitButton.classList.remove("show");
 
     startScreen.classList.add("fade-out");
@@ -367,17 +661,12 @@ function startGame() {
     setTimeout(function() {
         gameScreen.classList.add("active");
 
-        // FADE IN CHAPTER 1
         setTimeout(function() {
             chapterIntro.classList.add("show");
 
-            // KEEP CHAPTER 1 VISIBLE FOR 2 SECONDS
             setTimeout(function() {
-
-                // FADE OUT CHAPTER 1
                 chapterIntro.classList.remove("show");
 
-                // WAIT FOR FADE OUT TO FINISH
                 setTimeout(function() {
                     dialogueBox.style.display = "";
                     dialogueBox.classList.add("dialogue-visible");
@@ -385,30 +674,22 @@ function startGame() {
                     currentDialogue = 0;
                     dialogueReady = true;
                     selectedChoice = null;
+                    finalChoicesShown = false;
 
-                    // RESET STORY PATH
                     activeDialogues = dialogues;
 
-                    // RESET CHOICES
+                    createInitialChoices();
                     choiceContainer.style.display = "none";
 
-                    // SHOW CONTINUE TEXT
                     const continueText = dialogueBox.querySelector(".continue-text");
 
                     if (continueText) {
                         continueText.style.display = "block";
                     }
 
-                    Array.from(choiceContainer.children).forEach(function(button) {
-                        button.disabled = false;
-                        button.style.opacity = "1";
-                        button.style.background = "#000000";
-                        button.style.border = "1px solid #247bff";
-                        button.style.color = "#a9d4ff";
-                    });
-
-                    // SHOW EXIT BUTTON WHEN DIALOGUE STARTS
                     exitButton.classList.add("show");
+
+                    autoSave();
 
                     typeDialogue();
 
@@ -421,20 +702,54 @@ function startGame() {
     }, transitionTime);
 }
 
-// TITLE SCREEN CLICK ONLY
-startScreen.addEventListener("click", function(event) {
-    event.stopPropagation();
+// START NEW GAME IN SELECTED SLOT
+function beginNewGame(slotIndex) {
+    activeSaveSlot = slotIndex;
 
-    if (currentScreen !== "title") return;
+    currentDialogue = 0;
+    activeDialogues = dialogues;
 
-    startGame();
-});
+    selectedChoice = null;
+    finalChoicesShown = false;
+
+    isTyping = false;
+    dialogueReady = false;
+    hasStarted = false;
+
+    createInitialChoices();
+    choiceContainer.style.display = "none";
+
+    dialogueBox.style.display = "";
+    dialogueBox.classList.remove("dialogue-visible");
+
+    characterName.textContent = "YOU";
+    dialogueText.textContent = "";
+
+    const continueText = dialogueBox.querySelector(".continue-text");
+
+    if (continueText) {
+        continueText.style.display = "block";
+    }
+
+    savesScreen.classList.remove("active");
+
+    currentScreen = "title";
+
+    setTimeout(function() {
+        startScreen.classList.remove("fade-out");
+        topControls.classList.remove("fade-out");
+
+        startGame();
+    }, transitionTime);
+}
 
 // TYPEWRITER EFFECT
 function typeDialogue() {
     clearInterval(typingTimer);
 
     const dialogue = activeDialogues[currentDialogue];
+
+    if (!dialogue) return;
 
     characterName.textContent = dialogue.name;
     dialogueText.textContent = "";
@@ -451,6 +766,8 @@ function typeDialogue() {
         if (letterIndex >= dialogue.text.length) {
             clearInterval(typingTimer);
             isTyping = false;
+
+            autoSave();
         }
 
     }, 70);
@@ -461,55 +778,287 @@ gameScreen.addEventListener("click", function(event) {
     if (currentScreen !== "game") return;
     if (!dialogueReady) return;
 
-    // PREVENT CONTINUING AFTER A CHOICE HAS BEEN MADE
     if (selectedChoice !== null) {
 
-        // ALLOW THE SELECTED STORY BRANCH TO CONTINUE
         if (isTyping) {
             clearInterval(typingTimer);
 
             dialogueText.textContent = activeDialogues[currentDialogue].text;
 
             isTyping = false;
+
+            autoSave();
             return;
         }
 
-        // STOP WHEN THE SELECTED BRANCH HAS FINISHED
         if (currentDialogue >= activeDialogues.length - 1) {
+
+            if (
+                activeDialogues === storyBranches.getOutOfBed &&
+                !finalChoicesShown
+            ) {
+                showFinalChoices();
+            }
+
             return;
         }
 
-        // MOVE TO NEXT DIALOGUE IN THE SELECTED BRANCH
         currentDialogue++;
+
+        autoSave();
         typeDialogue();
 
         return;
     }
 
-    // IF CHOICES ARE VISIBLE, DO NOT ADVANCE
     if (choiceContainer.style.display === "flex") return;
 
-    // IF TEXT IS STILL TYPING, SHOW THE WHOLE SENTENCE
     if (isTyping) {
         clearInterval(typingTimer);
 
         dialogueText.textContent = activeDialogues[currentDialogue].text;
 
         isTyping = false;
+
+        autoSave();
         return;
     }
 
-    // SHOW CHOICES AFTER THE FINAL MAID DIALOGUE
     if (currentDialogue === dialogues.length - 1) {
         showChoices();
         return;
     }
 
-    // MOVE TO NEXT DIALOGUE
     if (currentDialogue < activeDialogues.length - 1) {
         currentDialogue++;
+
+        autoSave();
         typeDialogue();
     }
+});
+
+// SAVES SCREEN
+function openSavesScreen(mode) {
+    savesMode = mode;
+
+    currentScreen = "saves";
+
+    startScreen.classList.add("fade-out");
+    topControls.classList.add("fade-out");
+
+    saveModeDescription.textContent =
+        mode === "new"
+            ? "Select a slot for your new game."
+            : "Select a save slot to continue.";
+
+    renderSaveSlots();
+
+    savesScreen.classList.add("active");
+}
+
+function renderSaveSlots() {
+    saveSlotsContainer.innerHTML = "";
+
+    saveSlots.forEach(function(save, index) {
+
+        const slot = document.createElement("div");
+        slot.className = "save-slot";
+
+        const info = document.createElement("div");
+        info.className = "save-slot-info";
+
+        const title = document.createElement("div");
+        title.className = "save-slot-title";
+        title.textContent = "SAVE SLOT " + (index + 1);
+
+        const details = document.createElement("div");
+        details.className = "save-slot-details";
+
+        const actions = document.createElement("div");
+        actions.className = "save-slot-actions";
+
+        if (save) {
+            details.innerHTML =
+                "Chapter " + save.chapter +
+                "<br>" + save.chapterTitle +
+                "<br>Dialogue: " + (save.currentDialogue + 1) +
+                "<br>Last saved: " +
+                new Date(save.timestamp).toLocaleString();
+
+            if (savesMode === "new") {
+                const overwriteButton = document.createElement("button");
+
+                overwriteButton.className = "save-action";
+                overwriteButton.textContent = "Overwrite";
+
+                overwriteButton.addEventListener("click", function(event) {
+                    event.stopPropagation();
+
+                    if (confirm("Overwrite Save Slot " + (index + 1) + "? This cannot be undone.")) {
+                        beginNewGame(index);
+                    }
+                });
+
+                actions.appendChild(overwriteButton);
+
+            } else {
+                const loadButton = document.createElement("button");
+
+                loadButton.className = "save-action";
+                loadButton.textContent = "Load";
+
+                loadButton.addEventListener("click", function(event) {
+                    event.stopPropagation();
+                    loadGame(index);
+                });
+
+                actions.appendChild(loadButton);
+            }
+
+        } else {
+            details.classList.add("save-empty");
+            details.textContent = "Empty Slot";
+
+            const newButton = document.createElement("button");
+
+            newButton.className = "save-action";
+            newButton.textContent = savesMode === "new" ? "Start" : "Empty";
+
+            if (savesMode === "new") {
+                newButton.addEventListener("click", function(event) {
+                    event.stopPropagation();
+                    beginNewGame(index);
+                });
+            } else {
+                newButton.disabled = true;
+                newButton.style.opacity = ".4";
+                newButton.style.cursor = "default";
+            }
+
+            actions.appendChild(newButton);
+        }
+
+        info.appendChild(title);
+        info.appendChild(details);
+
+        slot.appendChild(info);
+        slot.appendChild(actions);
+
+        saveSlotsContainer.appendChild(slot);
+    });
+}
+
+// LOAD GAME
+function loadGame(slotIndex) {
+    const save = getSaveData(slotIndex);
+
+    if (!save) {
+        alert("This save slot is empty.");
+        return;
+    }
+
+    const availablePaths = {
+        main: dialogues,
+        getOutOfBed: storyBranches.getOutOfBed,
+        stayInBed: storyBranches.stayInBed,
+        yes: storyBranches.yes,
+        no: storyBranches.no
+    };
+
+    if (!availablePaths[save.storyPath]) {
+        alert("This save file is incompatible.");
+        return;
+    }
+
+    clearInterval(typingTimer);
+
+    activeSaveSlot = slotIndex;
+
+    activeDialogues = availablePaths[save.storyPath];
+
+    currentDialogue = Math.max(
+        0,
+        Math.min(save.currentDialogue, activeDialogues.length - 1)
+    );
+
+    selectedChoice = save.selectedChoice;
+    finalChoicesShown = save.finalChoicesShown || false;
+
+    dialogueReady = true;
+    hasStarted = true;
+    isTyping = false;
+
+    currentScreen = "game";
+
+    savesScreen.classList.remove("active");
+
+    startScreen.classList.add("fade-out");
+    topControls.classList.add("fade-out");
+
+    dropdownMenu.classList.remove("show");
+    startOptions.classList.remove("show");
+
+    setTimeout(function() {
+        gameScreen.classList.add("active");
+
+        chapterIntro.classList.remove("show");
+
+        dialogueBox.style.display = "";
+        dialogueBox.classList.add("dialogue-visible");
+
+        exitButton.classList.add("show");
+
+        const continueText = dialogueBox.querySelector(".continue-text");
+
+        if (finalChoicesShown && selectedChoice === null) {
+            dialogueBox.style.display = "none";
+
+            if (continueText) {
+                continueText.style.display = "none";
+            }
+
+            showFinalChoices();
+
+        } else if (selectedChoice === null &&
+                   save.storyPath === "main" &&
+                   currentDialogue === dialogues.length - 1) {
+
+            dialogueBox.style.display = "none";
+
+            if (continueText) {
+                continueText.style.display = "none";
+            }
+
+            showChoices();
+
+        } else {
+            choiceContainer.style.display = "none";
+
+            if (continueText) {
+                continueText.style.display = "block";
+            }
+
+            characterName.textContent = activeDialogues[currentDialogue].name;
+            dialogueText.textContent = activeDialogues[currentDialogue].text;
+        }
+
+    }, transitionTime);
+}
+
+// BACK FROM SAVES
+savesBack.addEventListener("click", function(event) {
+    event.stopPropagation();
+
+    if (currentScreen !== "saves") return;
+
+    savesScreen.classList.remove("active");
+
+    currentScreen = "title";
+
+    setTimeout(function() {
+        startScreen.classList.remove("fade-out");
+        topControls.classList.remove("fade-out");
+    }, transitionTime);
 });
 
 // EXIT BUTTON
@@ -519,41 +1068,31 @@ exitButton.addEventListener("click", function(event) {
 
     if (currentScreen !== "game") return;
 
-    // STOP ANY RUNNING TYPEWRITER EFFECT
+    // SAVE BEFORE EXITING
+    autoSave();
+
     clearInterval(typingTimer);
 
-    // RESET GAME VARIABLES
     currentScreen = "title";
     currentDialogue = 0;
     isTyping = false;
     hasStarted = false;
     dialogueReady = false;
     selectedChoice = null;
+    finalChoicesShown = false;
 
-    // RESET STORY PATH
     activeDialogues = dialogues;
 
-    // HIDE EXIT BUTTON
     exitButton.classList.remove("show");
 
-    // RESET GAME SCREEN
     gameScreen.classList.remove("active");
     dialogueBox.classList.remove("dialogue-visible");
     chapterIntro.classList.remove("show");
 
-    // RESTORE DIALOGUE BOX
     dialogueBox.style.display = "";
 
-    // RESET CHOICES
+    createInitialChoices();
     choiceContainer.style.display = "none";
-
-    Array.from(choiceContainer.children).forEach(function(button) {
-        button.disabled = false;
-        button.style.opacity = "1";
-        button.style.background = "#000000";
-        button.style.border = "1px solid #247bff";
-        button.style.color = "#a9d4ff";
-    });
 
     const continueText = dialogueBox.querySelector(".continue-text");
 
@@ -561,14 +1100,37 @@ exitButton.addEventListener("click", function(event) {
         continueText.style.display = "block";
     }
 
-    // CLEAR OLD DIALOGUE
     characterName.textContent = "YOU";
     dialogueText.textContent = "";
 
-    // RETURN TO TITLE SCREEN
     startScreen.classList.remove("fade-out");
     topControls.classList.remove("fade-out");
 
-    // CLOSE DROPDOWN MENU
+    startOptions.classList.remove("show");
+
     dropdownMenu.classList.remove("show");
 });
+
+// UPDATE CONTINUE BUTTON
+function updateContinueButton() {
+    const latestSlot = getLatestSaveSlot();
+
+    continueButton.disabled = latestSlot === null;
+
+    continueButton.style.opacity =
+        latestSlot === null ? ".4" : "1";
+
+    continueButton.style.cursor =
+        latestSlot === null ? "default" : "pointer";
+}
+
+updateContinueButton();
+
+// REFRESH SAVE DATA WHEN RETURNING TO TITLE
+const originalRenderSaveSlots = renderSaveSlots;
+
+renderSaveSlots = function() {
+    saveSlots = loadAllSaves();
+    originalRenderSaveSlots();
+    updateContinueButton();
+};
