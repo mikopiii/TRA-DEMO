@@ -255,6 +255,21 @@ body {
     margin-top: 15px;
 }
 
+/* ABOUT SECTION */
+.about-credit {
+    font-size: 28px;
+    font-weight: normal;
+    letter-spacing: 2px;
+}
+
+.about-mikopi {
+    color: #a9d4ff;
+}
+
+.about-nicapi {
+    color: #ffb6d9;
+}
+
 /* GAME DIALOGUE */
 #gameScreen {
     justify-content: flex-end;
@@ -465,6 +480,12 @@ body {
     .save-slot-actions {
         flex-shrink: 0;
     }
+
+    /* MOBILE ABOUT SECTION */
+    .about-credit {
+        font-size: 21px;
+        letter-spacing: 1px;
+    }
 }
 </style>
 </head>
@@ -528,6 +549,18 @@ body {
     <button class="back-button" id="returnChapters">
         Back to chapters?
     </button>
+
+</section>
+
+<!-- ABOUT SCREEN -->
+<section class="screen" id="aboutScreen">
+
+    <h2 class="about-credit">
+        Created by <span class="about-mikopi">Mikopi</span> &amp;
+        <span class="about-nicapi">Nicapi</span>
+    </h2>
+
+    <button class="back-button" id="aboutBack" style="background: #000;">Back</button>
 
 </section>
 

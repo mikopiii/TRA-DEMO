@@ -17,6 +17,10 @@ const individualChapter = document.getElementById("individualChapter");
 const gameScreen = document.getElementById("gameScreen");
 const savesScreen = document.getElementById("savesScreen");
 
+// ABOUT SCREEN
+const aboutScreen = document.getElementById("aboutScreen");
+const aboutBack = document.getElementById("aboutBack");
+
 const startOptions = document.getElementById("startOptions");
 const newGameButton = document.getElementById("newGameButton");
 const continueButton = document.getElementById("continueButton");
@@ -637,7 +641,31 @@ aboutOption.addEventListener("click", function(event) {
 
     dropdownMenu.classList.remove("show");
 
-    alert("The Runaway Bride\n\nA mysterious story...");
+    if (currentScreen !== "title") return;
+
+    currentScreen = "about";
+
+    startScreen.classList.add("fade-out");
+    topControls.classList.add("fade-out");
+
+    aboutScreen.classList.add("active");
+});
+
+// BACK FROM ABOUT
+aboutBack.addEventListener("click", function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (currentScreen !== "about") return;
+
+    currentScreen = "title";
+
+    aboutScreen.classList.remove("active");
+
+    setTimeout(function() {
+        startScreen.classList.remove("fade-out");
+        topControls.classList.remove("fade-out");
+    }, transitionTime);
 });
 
 // SCREEN TRANSITION
