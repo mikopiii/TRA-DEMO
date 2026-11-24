@@ -243,7 +243,7 @@ const storyBranches = {
         },
         {
             name: "Lady in waiting",
-            text: "Good afternoon, my lady. Your washstand—"
+            text: "Good afternoon, my lady. Your washstand"
         },
         {
             name: "",
@@ -313,8 +313,8 @@ const storyBranches = {
 
     stayInBed: [
         {
-            name: "MAID",
-            text: "Good afternoon, my lady. Your washstand—"
+            name: "",
+            text: "You stayed lying down on the bed, which concerned the maid"
         },
         {
             name: "MAID",
@@ -323,6 +323,54 @@ const storyBranches = {
         {
             name: "YOU",
             text: "Perhaps, I should."
+        },
+        {
+            name: "",
+            text: "You got out of your bed."
+        },
+        {
+            name: "",
+            text: "You walk forward to your vanity."
+        },
+        {
+            name: "YOU",
+            text: "Greetings again, you look paler than ever."
+        },
+        {
+            name: "",
+            text: "You say to yourself as you see your reflection on the mirror."
+        },
+        {
+            name: "",
+            text: "*Knocks*"
+        },
+        {
+            name: "Lady in waiting",
+            text: "Good afternoon, my lady. Your washstand"
+        },
+        {
+            name: "",
+            text: "She places it on your vanity’s side table."
+        },
+        {
+            name: "",
+            text: "You wash your face with a damp cloth before sitting down on a chair."
+        },
+        {
+            name: "YOU",
+            text: "Would you mind washing my feet and arms too."
+        },
+        {
+            name: "Lady in waiting",
+            text: "Of course, my Lady"
+        },
+        {
+            name: "",
+            text: "Your lady in waiting lowers herself to her knees to clean your ankles."
+        },
+        {
+            name: "",
+            text: "She proceeds to wipe the grime off the skin of your arms with gentle care, seeing your preferences to be this way."
         }
     ],
 
@@ -342,6 +390,22 @@ const storyBranches = {
         {
             name: "",
             text: "You can now leave your room with ease."
+        },
+        {
+            name: "",
+            text: "You arrive at the garden."
+        },
+        {
+            name: "",
+            text: "The gift your father had given you for that one special day that mattered most to him."
+        },
+        {
+            name: "YOU",
+            text: "At least it’s well maintained."
+        },
+        {
+            name: "",
+            text: "You walk around, taking in the same flowers you always look at—the same flowers that die, the same flowers that get replanted on the very day they die, with no chance to mourn."
         }
     ],
 
@@ -356,7 +420,11 @@ const storyBranches = {
         },
         {
             name: "",
-            text: "Your Lady in Waiting returns — although you drove her off — You won’t be able to leave your room."
+            text: "Your Lady in Waiting returns, although you drove her off"
+        },
+        {
+            name: "",
+            text: "You won’t be able to leave your room."
         }
     ]
 
