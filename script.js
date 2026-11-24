@@ -10,6 +10,7 @@ const aboutOption = document.getElementById("aboutOption");
 
 const startScreen = document.getElementById("startScreen");
 const topControls = document.getElementById("topControls");
+const startText = document.querySelector(".start-text");
 
 const chapterScreen = document.getElementById("chapterScreen");
 const individualChapter = document.getElementById("individualChapter");
@@ -192,7 +193,7 @@ const dialogues = [
     },
     {
         name: "YOU",
-        text: "… Surely father will be displeased with how I have been lately"
+        text: "… Surely father will also be displeased with how I have been lately"
     },
     {
         name: "YOU",
@@ -262,7 +263,15 @@ const storyBranches = {
         },
         {
             name: "",
-            text: "Your lady in waiting lowers herself to her knees to clean your ankles — She proceeds to wipe the grime off the skin of your arms with gentle care, seeing your preferences to be this way — Your lady in waiting seems to have something to say to fill the silence in the room."
+            text: "Your lady in waiting lowers herself to her knees to clean your ankles."
+        },
+        {
+            name: "",
+            text: "She proceeds to wipe the grime off the skin of your arms with gentle care, seeing your preferences to be this way."
+        },
+        {
+            name: "",
+            text: "Your lady in waiting seems to have something to say to fill the silence in the room."
         },
         {
             name: "Lady in waiting",
@@ -278,7 +287,7 @@ const storyBranches = {
         },
         {
             name: "YOU",
-            text: "Bring me my umbrella after this, I want the gardeners out of my garden as well."
+            text: "Bring me my parasol after this, I want the gardeners out of my garden as well."
         },
         {
             name: "Lady in waiting",
@@ -286,7 +295,15 @@ const storyBranches = {
         },
         {
             name: "",
-            text: "Your lady in waiting finishes her assistance then leaves you to get your parasol — You look at the seeping sunlight again — It irks you."
+            text: "Your lady in waiting finishes her assistance then leaves you to get your parasol."
+        },
+        {
+            name: "",
+            text: "You look at the seeping sunlight again."
+        },
+        {
+            name: "",
+            text: "It irks you."
         },
         {
             name: "YOU",
@@ -316,7 +333,15 @@ const storyBranches = {
         },
         {
             name: "",
-            text: "Your Lady in Waiting returns with your parasol — You grab your shawl for some coverage — You can now leave your room with ease."
+            text: "Your Lady in Waiting returns with your parasol."
+        },
+        {
+            name: "",
+            text: "You grab your shawl for some coverage."
+        },
+        {
+            name: "",
+            text: "You can now leave your room with ease."
         }
     ],
 
@@ -614,6 +639,9 @@ startScreen.addEventListener("click", function(event) {
     if (startOptions.classList.contains("show")) return;
 
     startOptions.classList.add("show");
+
+    // HIDE THE TAP TO START TEXT
+    startText.style.display = "none";
 });
 
 // OPEN SAVE SLOT SELECTION FOR NEW GAME
@@ -652,6 +680,8 @@ function startGame() {
 
     dropdownMenu.classList.remove("show");
     startOptions.classList.remove("show");
+
+    startText.style.display = "none";
 
     exitButton.classList.remove("show");
 
@@ -734,6 +764,8 @@ function beginNewGame(slotIndex) {
     savesScreen.classList.remove("active");
 
     currentScreen = "title";
+
+    startText.style.display = "none";
 
     setTimeout(function() {
         startScreen.classList.remove("fade-out");
@@ -915,6 +947,33 @@ function renderSaveSlots() {
                 actions.appendChild(loadButton);
             }
 
+            // DELETE SAVE BUTTON
+            const deleteButton = document.createElement("button");
+
+            deleteButton.className = "save-action";
+            deleteButton.textContent = "Delete";
+
+            deleteButton.style.color = "#ff0000";
+            deleteButton.style.borderColor = "#ff0000";
+
+            deleteButton.addEventListener("click", function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (confirm("Are you sure you want to delete Save Slot " + (index + 1) + "? This cannot be undone.")) {
+
+                    saveSlots[index] = null;
+
+                    writeAllSaves();
+
+                    renderSaveSlots();
+
+                    updateContinueButton();
+                }
+            });
+
+            actions.appendChild(deleteButton);
+
         } else {
             details.classList.add("save-empty");
             details.textContent = "Empty Slot";
@@ -997,6 +1056,8 @@ function loadGame(slotIndex) {
 
     dropdownMenu.classList.remove("show");
     startOptions.classList.remove("show");
+
+    startText.style.display = "none";
 
     setTimeout(function() {
         gameScreen.classList.add("active");
@@ -1107,6 +1168,9 @@ exitButton.addEventListener("click", function(event) {
     topControls.classList.remove("fade-out");
 
     startOptions.classList.remove("show");
+
+    // RESTORE TAP TO START TEXT
+    startText.style.display = "";
 
     dropdownMenu.classList.remove("show");
 });
