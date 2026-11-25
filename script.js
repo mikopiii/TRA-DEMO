@@ -41,8 +41,57 @@ const chapterButtons = document.querySelectorAll(".chapter-button");
 
 const characterName = document.getElementById("characterName");
 const dialogueText = document.getElementById("dialogueText");
+const mcPortrait = document.getElementById("mcPortrait");
 
 const transitionTime = 600;
+
+const PORTRAIT_UNLOCK_DIALOGUE = "Greetings again, you look paler than ever.";
+
+let mcPortraitUnlocked = false;
+
+function setMcPortraitUnlocked(value) {
+    mcPortraitUnlocked = value === true;
+    window.mcPortraitUnlocked = mcPortraitUnlocked;
+}
+
+function syncMcPortrait(speakerName) {
+    if (!mcPortrait) return;
+
+    const normalizedSpeaker = typeof speakerName === "string"
+        ? speakerName.trim().toUpperCase()
+        : "";
+
+    if (mcPortraitUnlocked && normalizedSpeaker === "YOU") {
+        mcPortrait.classList.add("visible");
+    } else {
+        mcPortrait.classList.remove("visible");
+    }
+}
+
+function hasReachedPortraitUnlock(save) {
+    if (!save) return false;
+
+    // Use the saved portrait state when available.
+    if (typeof save.mcPortraitUnlocked === "boolean") {
+        return save.mcPortraitUnlocked;
+    }
+
+    // Compatibility with older saves that do not contain the portrait flag.
+    switch (save.storyPath) {
+        case "getOutOfBed":
+            return save.currentDialogue >= 1;
+
+        case "stayInBed":
+            return save.currentDialogue >= 5;
+
+        case "yes":
+        case "no":
+            return true;
+
+        default:
+            return false;
+    }
+}
 
 // SAVE SYSTEM
 const SAVE_KEY = "runawayBrideSaveSlots";
@@ -122,6 +171,8 @@ function createSaveData() {
 
         dialogueReady: dialogueReady,
 
+        mcPortraitUnlocked: mcPortraitUnlocked,
+
         timestamp: Date.now()
     };
 }
@@ -134,7 +185,9 @@ function autoSave() {
 
     writeAllSaves();
 
-    updateContinueButton();
+    if (typeof updateContinueButton === "function") {
+        updateContinueButton();
+    }
 }
 
 function getSaveData(slotIndex) {
@@ -516,6 +569,7 @@ function showChoices() {
 
     characterName.textContent = "";
     dialogueText.textContent = "";
+    syncMcPortrait("");
 
     choiceContainer.style.display = "flex";
 
@@ -536,6 +590,7 @@ function showFinalChoices() {
 
     characterName.textContent = "";
     dialogueText.textContent = "";
+    syncMcPortrait("");
 
     selectedChoice = null;
 
@@ -842,6 +897,9 @@ function beginNewGame(slotIndex) {
     dialogueReady = false;
     hasStarted = false;
 
+    // RESET PORTRAIT UNLOCK FOR A NEW GAME
+    setMcPortraitUnlocked(false);
+
     createInitialChoices();
     choiceContainer.style.display = "none";
 
@@ -850,6 +908,7 @@ function beginNewGame(slotIndex) {
 
     characterName.textContent = "YOU";
     dialogueText.textContent = "";
+    syncMcPortrait("YOU");
 
     const continueText = dialogueBox.querySelector(".continue-text");
 
@@ -879,8 +938,14 @@ function typeDialogue() {
 
     if (!dialogue) return;
 
+    // UNLOCK THE PORTRAIT WHEN THE INTRODUCTORY GREETING STARTS
+    if (dialogue.text.trim() === PORTRAIT_UNLOCK_DIALOGUE) {
+        setMcPortraitUnlocked(true);
+    }
+
     characterName.textContent = dialogue.name;
     dialogueText.textContent = "";
+    syncMcPortrait(dialogue.name);
 
     let letterIndex = 0;
 
@@ -1064,7 +1129,9 @@ function renderSaveSlots() {
 
                     renderSaveSlots();
 
-                    updateContinueButton();
+                    if (typeof updateContinueButton === "function") {
+                        updateContinueButton();
+                    }
                 }
             });
 
@@ -1139,6 +1206,9 @@ function loadGame(slotIndex) {
     selectedChoice = save.selectedChoice;
     finalChoicesShown = save.finalChoicesShown || false;
 
+    // RESTORE PORTRAIT UNLOCK STATE
+    setMcPortraitUnlocked(hasReachedPortraitUnlock(save));
+
     dialogueReady = true;
     hasStarted = true;
     isTyping = false;
@@ -1169,6 +1239,7 @@ function loadGame(slotIndex) {
 
         if (finalChoicesShown && selectedChoice === null) {
             dialogueBox.style.display = "none";
+            syncMcPortrait("");
 
             if (continueText) {
                 continueText.style.display = "none";
@@ -1181,6 +1252,7 @@ function loadGame(slotIndex) {
                    currentDialogue === dialogues.length - 1) {
 
             dialogueBox.style.display = "none";
+            syncMcPortrait("");
 
             if (continueText) {
                 continueText.style.display = "none";
@@ -1197,6 +1269,7 @@ function loadGame(slotIndex) {
 
             characterName.textContent = activeDialogues[currentDialogue].name;
             dialogueText.textContent = activeDialogues[currentDialogue].text;
+            syncMcPortrait(activeDialogues[currentDialogue].name);
         }
 
     }, transitionTime);
@@ -1240,57 +1313,19 @@ exitButton.addEventListener("click", function(event) {
 
     activeDialogues = dialogues;
 
+    setMcPortraitUnlocked(false);
+    syncMcPortrait("");
+
     exitButton.classList.remove("show");
 
     gameScreen.classList.remove("active");
     dialogueBox.classList.remove("dialogue-visible");
     chapterIntro.classList.remove("show");
 
-    dialogueBox.style.display = "";
-
-    createInitialChoices();
-    choiceContainer.style.display = "none";
-
-    const continueText = dialogueBox.querySelector(".continue-text");
-
-    if (continueText) {
-        continueText.style.display = "block";
-    }
-
-    characterName.textContent = "YOU";
-    dialogueText.textContent = "";
-
+    setTimeout(function() {
     startScreen.classList.remove("fade-out");
     topControls.classList.remove("fade-out");
 
-    startOptions.classList.remove("show");
-
-    // RESTORE TAP TO START TEXT
     startText.style.display = "";
-
-    dropdownMenu.classList.remove("show");
+}, transitionTime);
 });
-
-// UPDATE CONTINUE BUTTON
-function updateContinueButton() {
-    const latestSlot = getLatestSaveSlot();
-
-    continueButton.disabled = latestSlot === null;
-
-    continueButton.style.opacity =
-        latestSlot === null ? ".4" : "1";
-
-    continueButton.style.cursor =
-        latestSlot === null ? "default" : "pointer";
-}
-
-updateContinueButton();
-
-// REFRESH SAVE DATA WHEN RETURNING TO TITLE
-const originalRenderSaveSlots = renderSaveSlots;
-
-renderSaveSlots = function() {
-    saveSlots = loadAllSaves();
-    originalRenderSaveSlots();
-    updateContinueButton();
-};
