@@ -5,7 +5,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Runaway Bride</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
 
 <style>
@@ -47,8 +46,7 @@ body {
     border: 2px solid #ff0000;
     background: #1B1B1B;
     color: #ff0000;
-    font-family: 'Special Elite', cursive;
-    font-size: 12px;
+    font: 12px 'Special Elite', cursive;
     letter-spacing: 2px;
     cursor: pointer;
     display: flex;
@@ -90,15 +88,10 @@ body {
     border: none;
     background: transparent;
     color: #ff0000;
-    font-family: 'Special Elite', cursive;
-    font-size: 10px;
+    font: 10px 'Special Elite', cursive;
     letter-spacing: 1px;
     cursor: pointer;
     transition: none;
-}
-
-.dropdown-button:last-child {
-    border-bottom: none;
 }
 
 /* MAIN TITLE */
@@ -132,21 +125,16 @@ body {
 @keyframes brokenBulb {
     0%,18%,20%,22%,25%,54%,56%,100% {
         opacity: 1;
-        text-shadow: 0 0 10px #ff0000,
-                     0 0 25px #ff0000,
-                     0 0 45px #800000;
+        text-shadow: 0 0 10px #ff0000, 0 0 25px #ff0000, 0 0 45px #800000;
     }
-
     19%,21%,55% {
         opacity: .15;
         text-shadow: none;
     }
-
     23%,24% {
         opacity: .6;
         text-shadow: 0 0 5px #ff0000;
     }
-
     70% {
         opacity: .85;
         text-shadow: 0 0 15px #ff0000;
@@ -200,7 +188,6 @@ body {
     margin-bottom: 55px;
 }
 
-/* CHAPTER BOXES */
 .chapter-list {
     display: flex;
     flex-direction: row;
@@ -219,8 +206,7 @@ body {
     background: #1B1B1B;
     border: 2px solid #ff0000;
     color: #a9d4ff;
-    font-family: 'Special Elite', cursive;
-    font-size: 17px;
+    font: 17px 'Special Elite', cursive;
     letter-spacing: 3px;
     cursor: pointer;
     transition: none;
@@ -235,8 +221,7 @@ body {
     background: #1B1B1B;
     border: 1px solid #ff0000;
     color: #a9d4ff;
-    font-family: 'Special Elite', cursive;
-    font-size: 14px;
+    font: 14px 'Special Elite', cursive;
     letter-spacing: 3px;
     cursor: pointer;
     transition: .3s;
@@ -257,13 +242,8 @@ body {
     letter-spacing: 2px;
 }
 
-.about-mikopi {
-    color: #a9d4ff;
-}
-
-.about-nicapi {
-    color: #ffb6d9;
-}
+.about-mikopi { color: #a9d4ff; }
+.about-nicapi { color: #ffb6d9; }
 
 /* GAME DIALOGUE */
 #gameScreen {
@@ -290,9 +270,7 @@ body {
     gap: 20px;
 }
 
-.dialogue-box.dialogue-visible {
-    opacity: 1;
-}
+.dialogue-box.dialogue-visible { opacity: 1; }
 
 .dialogue-content {
     flex: 1;
@@ -356,24 +334,18 @@ body {
     pointer-events: none;
 }
 
-#chapterIntro.show {
-    opacity: 1;
-}
+#chapterIntro.show { opacity: 1; }
 
 /* NEW GAME / CONTINUE OPTIONS */
 .start-options {
     display: none;
     flex-direction: column;
     gap: 12px;
-    margin-top: 25px;
+    margin: 25px auto 0;
     width: 230px;
-    margin-left: auto;
-    margin-right: auto;
 }
 
-.start-options.show {
-    display: flex;
-}
+.start-options.show { display: flex; }
 
 .start-option-button {
     width: 100%;
@@ -381,8 +353,7 @@ body {
     border: 1px solid #ff0000;
     background: #1B1B1B;
     color: #a9d4ff;
-    font-family: 'Special Elite', cursive;
-    font-size: 13px;
+    font: 13px 'Special Elite', cursive;
     letter-spacing: 2px;
     cursor: pointer;
 }
@@ -442,17 +413,14 @@ body {
     min-width: 95px;
     padding: 9px 12px;
     border: 1px solid #ff0000;
-    background: #000000;
+    background: #000;
     color: #ff0000;
-    font-family: 'Special Elite', cursive;
-    font-size: 11px;
+    font: 11px 'Special Elite', cursive;
     letter-spacing: 1px;
     cursor: pointer;
 }
 
-.save-empty {
-    color: #ff0000;
-}
+.save-empty { color: #ff0000; }
 
 .save-mode-description {
     color: #a9d4ff;
@@ -464,9 +432,7 @@ body {
 
 /* MOBILE */
 @media (max-width: 750px) {
-    .chapter-list {
-        flex-wrap: wrap;
-    }
+    .chapter-list { flex-wrap: wrap; }
 
     .chapter-button {
         flex: 0 0 40%;
@@ -479,38 +445,26 @@ body {
         white-space: normal;
     }
 
-    .section-title {
-        font-size: 27px;
-    }
+    .section-title { font-size: 27px; }
 
     .dialogue-box {
         padding: 20px;
         gap: 12px;
     }
 
-    .dialogue-text {
-        font-size: 14px;
-    }
+    .dialogue-text { font-size: 14px; }
 
     .mc-portrait {
         width: 75px;
         height: 85px;
     }
 
-    /* MOBILE DIALOGUE POSITION ADJUSTMENT */
-    #gameScreen {
-        padding-bottom: 100px;
-    }
+    #gameScreen { padding-bottom: 100px; }
 
-    .save-slot {
-        align-items: flex-start;
-    }
+    .save-slot { align-items: flex-start; }
 
-    .save-slot-actions {
-        flex-shrink: 0;
-    }
+    .save-slot-actions { flex-shrink: 0; }
 
-    /* MOBILE ABOUT SECTION */
     .about-credit {
         font-size: 21px;
         letter-spacing: 1px;
@@ -524,7 +478,6 @@ body {
 <!-- MENU BUTTON -->
 <div class="top-controls" id="topControls">
     <button class="control-box" id="menuButton">Menu</button>
-
     <div class="dropdown-menu" id="dropdownMenu">
         <button class="dropdown-button" id="settingsOption">Settings</button>
         <button class="dropdown-button" id="chaptersOption">Chapters</button>
@@ -534,15 +487,12 @@ body {
 </div>
 
 <!-- EXIT BUTTON -->
-<button class="control-box exit-control" id="exitButton">
-    Leave?
-</button>
+<button class="control-box exit-control" id="exitButton">Leave?</button>
 
 <!-- MAIN TITLE -->
 <div class="center-content" id="startScreen">
     <h1 class="main-title">The Runaway Bride</h1>
     <p class="start-text">Click Here To Start</p>
-
     <div class="start-options" id="startOptions">
         <button class="start-option-button" id="newGameButton">New Run</button>
         <button class="start-option-button" id="continueButton">Continue?</button>
@@ -551,9 +501,7 @@ body {
 
 <!-- CHAPTER SELECTION -->
 <section class="screen" id="chapterScreen">
-
     <h2 class="section-title">Diary</h2>
-
     <div class="chapter-list">
         <button class="chapter-button" data-chapter="1">Chapter 1</button>
         <button class="chapter-button" data-chapter="2">Chapter 2</button>
@@ -561,76 +509,46 @@ body {
         <button class="chapter-button" data-chapter="4">Chapter 4</button>
         <button class="chapter-button" data-chapter="5">Chapter 5</button>
     </div>
-
     <button class="back-button" id="chapterBack">Back</button>
-
 </section>
 
 <!-- INDIVIDUAL CHAPTER -->
 <section class="screen" id="individualChapter">
-
     <h2 class="section-title" id="chapterTitle">Chapter 1</h2>
-
-    <p class="chapter-description">
-        Locked
-    </p>
-
-    <button class="back-button" id="returnChapters">
-        Back to chapters?
-    </button>
-
+    <p class="chapter-description">Locked</p>
+    <button class="back-button" id="returnChapters">Back to chapters?</button>
 </section>
 
 <!-- ABOUT SCREEN -->
 <section class="screen" id="aboutScreen">
-
     <h2 class="about-credit">
         Created by <span class="about-mikopi">Mikopi</span> &amp;
         <span class="about-nicapi">Nicapi</span>
     </h2>
-
     <button class="back-button" id="aboutBack" style="background: #000;">Back</button>
-
 </section>
 
 <!-- SAVES SCREEN -->
 <section class="screen" id="savesScreen">
-
     <h2 class="section-title">Saves</h2>
-
     <p class="save-mode-description" id="saveModeDescription">
         Select a save slot to continue.
     </p>
-
     <div class="save-slots" id="saveSlots"></div>
-
     <button class="back-button" id="savesBack">Back</button>
-
 </section>
 
 <!-- GAME DIALOGUE -->
 <section class="screen" id="gameScreen">
-
     <div id="chapterIntro">Chapter 1</div>
-
     <div class="dialogue-box" id="dialogueBox">
-
         <div class="dialogue-content">
-            <h3 class="character-name" id="characterName">
-                UNKNOWN
-            </h3>
-
+            <h3 class="character-name" id="characterName">UNKNOWN</h3>
             <p class="dialogue-text" id="dialogueText"></p>
-
-            <p class="continue-text">
-                Click to continue
-            </p>
+            <p class="continue-text">Click to continue</p>
         </div>
-
         <img src="images/mainchar.jpg" alt="Main Character" class="mc-portrait" id="mcPortrait">
-
     </div>
-
 </section>
 
 <script>
@@ -644,25 +562,20 @@ body {
 
     function syncPortraitVisibility() {
         const speaker = (characterNameEl.textContent || "").trim().toLowerCase();
-
-        if (window.mcPortraitUnlocked === true && speaker === "you") {
-            mcPortraitEl.classList.add("visible");
-        } else {
-            mcPortraitEl.classList.remove("visible");
-        }
+        mcPortraitEl.classList.toggle(
+            "visible",
+            window.mcPortraitUnlocked === true && speaker === "you"
+        );
     }
 
     window.updateCharacterPortrait = function (speakerName) {
         if (typeof speakerName === "string") {
             characterNameEl.textContent = speakerName;
         }
-
         syncPortraitVisibility();
     };
 
-    const observer = new MutationObserver(syncPortraitVisibility);
-
-    observer.observe(characterNameEl, {
+    new MutationObserver(syncPortraitVisibility).observe(characterNameEl, {
         characterData: true,
         childList: true,
         subtree: true
@@ -673,6 +586,5 @@ body {
 </script>
 
 <script src="script.js"></script>
-
 </body>
 </html>
